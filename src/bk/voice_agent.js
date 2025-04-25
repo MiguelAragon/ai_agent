@@ -248,7 +248,7 @@ function main() {
 
 
 const folder = path.join(__dirname, "logs")
-if (!fs.existsSync(folder)) fs.mkdirSync(folder);
+if (!fs.existsSync(folder)) fs.mkdirSync(folder, { recursive: true });
 
 const saveCall = ({data = {}, callSid, role, content, execution}) => {
     const CallSid = callSid ? callSid : data?.CallSid,

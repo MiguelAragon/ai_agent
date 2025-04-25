@@ -2,7 +2,7 @@ const path = require('path'),
     fs = require('fs'),
     folder = path.join(process.env.PATH_LOGS, 'calls');
 
-if (!fs.existsSync(folder)) fs.mkdirSync(folder);
+if (!fs.existsSync(folder)) fs.mkdirSync(folder, { recursive: true });
 
 const getCalls = () => {
     if (!fs.existsSync(folder)) return [];

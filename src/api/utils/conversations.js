@@ -2,7 +2,7 @@ const path = require('path'),
     fs = require('fs'),
     folder = path.join(process.env.PATH_LOGS, 'conversations');
 
-if (!fs.existsSync(folder)) fs.mkdirSync(folder);
+if (!fs.existsSync(folder)) fs.mkdirSync(folder, { recursive: true });
 
 const getConversations = () => {
     const files = fs.readdirSync(folder)
