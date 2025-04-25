@@ -1,5 +1,6 @@
 const ws = require('ws');
 const { saveCall } = require("./data/orders");
+const { twilioHandler } = require("./utils/twilioHandler");
 
 class Socket {
   	constructor() {
@@ -29,14 +30,13 @@ class Socket {
 
 			if (req.url === '/call') {
 				twilioHandler(socket);
-			} else if (req.url === "/chat") {
-				chatHandler(socket);
+			// } else if (req.url === "/chat") {
+			// 	chatHandler(socket);
 			} else {
 				console.log(`Unknown path: ${req.url}`);
 				socket.close();
 			}
 		
-
 			// if(type == "client"){
 			// 	this.clients.set(connectionId, socket);
 			// 	this.log("connection", `New connection established for type: ${type}, connectionId: ${connectionId}`);
@@ -50,59 +50,59 @@ class Socket {
 			// }
 
 			// Handle incoming messages
-			socket.on('message', (message) => {
-				try {
-					const data = JSON.parse(message);  
+			// socket.on('message', (message) => {
+			// 	try {
+			// 		const data = JSON.parse(message);  
 
-					if(type == "call") {
-						if (data.event === 'media') {
-							// Extract audio data from Twilio's message
-							const audioBuffer = Buffer.from(data.media.payload, 'base64');
+			// 		if(type == "call") {
+			// 			if (data.event === 'media') {
+			// 				// Extract audio data from Twilio's message
+			// 				const audioBuffer = Buffer.from(data.media.payload, 'base64');
 							
-							if (audioBuffer.length === 0) {
-								console.warn('Empty audio buffer received, skipping');
-								return;
-							}
+			// 				if (audioBuffer.length === 0) {
+			// 					console.warn('Empty audio buffer received, skipping');
+			// 					return;
+			// 				}
 
-							if (!dg) {
-								console.error('DeepGram connection object is null or undefined');
-								return;
-							}
+			// 				if (!dg) {
+			// 					console.error('DeepGram connection object is null or undefined');
+			// 					return;
+			// 				}
 
-							// Send audio to DeepGram for live transcription
-							if (dg && dg.getReadyState() === 1) {
-								try {
-									dg.send(audioBuffer);
-								} catch (error) {
-									console.error("Error sending audio to Deepgram:", error);
-								}
-							} else {
-								console.warn("Deepgram connection not ready, state:", dg?.getReadyState());
-							}
-						} else if (data.event === 'stop') {
-							console.log('Twilio Media Stream stopped');
-							dg.close();
-						} else {
-							this.onCallMessage(connectionId, data);
-						}
-					}else{
-						this.onClientMessage(connectionId, data);
-					}
-				} catch (err) {
-					this.log("message", `Failed to decode message: ${err?.message || err}`);
-				}
-			});
+			// 				// Send audio to DeepGram for live transcription
+			// 				if (dg && dg.getReadyState() === 1) {
+			// 					try {
+			// 						dg.send(audioBuffer);
+			// 					} catch (error) {
+			// 						console.error("Error sending audio to Deepgram:", error);
+			// 					}
+			// 				} else {
+			// 					console.warn("Deepgram connection not ready, state:", dg?.getReadyState());
+			// 				}
+			// 			} else if (data.event === 'stop') {
+			// 				console.log('Twilio Media Stream stopped');
+			// 				dg.close();
+			// 			} else {
+			// 				this.onCallMessage(connectionId, data);
+			// 			}
+			// 		}else{
+			// 			this.onClientMessage(connectionId, data);
+			// 		}
+			// 	} catch (err) {
+			// 		this.log("message", `Failed to decode message: ${err?.message || err}`);
+			// 	}
+			// });
 
 			// Handle client disconnection
-			socket.on('close', () => {
-				if (type === 'call') {
-					this.log("close", `Call ${connectionId} disconnected`);
-					this.calls.delete(connectionId);
-				} else {
-					this.log("close", `Client ${connectionId} disconnected`);
-					this.clients.delete(connectionId);
-				}
-			});
+			// socket.on('close', () => {
+			// 	if (type === 'call') {
+			// 		this.log("close", `Call ${connectionId} disconnected`);
+			// 		this.calls.delete(connectionId);
+			// 	} else {
+			// 		this.log("close", `Client ${connectionId} disconnected`);
+			// 		this.clients.delete(connectionId);
+			// 	}
+			// });
       	});
     }
 

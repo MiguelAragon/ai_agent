@@ -1,6 +1,6 @@
 const WebSocket = require('ws');
 const { createClient, AgentEvents } = require('@deepgram/sdk');
-const { saveCall } = require('../data/orders');
+const { saveCall } = require('./calls');
 
 // Replace with your Deepgram API key
 const DEEPGRAM_API_KEY = process.env.DEEPGRAM_API_KEY;
@@ -89,7 +89,7 @@ async function twilioHandler(twilioWs, req) {
   
     agent.on(AgentEvents.ConversationText, async (message) => {
       console.log(`${message.role} said: ${message.content}`);
-      if(callData?.CallSid) saveCall(callData, callData?.CallSid, message.role, message.content);
+      if(callData?.CallSid) saveCall({data: callData, callSid: callData?.CallSid, role: message.role, content: message.content});
     });
   
     agent.on(AgentEvents.Audio, async (audio) => {
@@ -207,5 +207,4 @@ async function twilioHandler(twilioWs, req) {
     });
 }
 
-
-export { twilioHandler }
+module.exports = { twilioHandler }
