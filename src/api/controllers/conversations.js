@@ -1,9 +1,9 @@
 const express = require("express"),
   	api = express.Router({ mergeParams: true }),
-    { getOrder }  = require('./utils/orders'),
+    { getOrder }  = require('../data/orders'),
     { v4: uuidv4 } = require('uuid'),
-    { getConversation, getConversations, saveConversation } = require('./utils/conversations'),
-    { openai } = require("./utils/utils");
+    { getConversation, getConversations, saveConversation } = require('../utils/conversations'),
+    { openai } = require("../utils/utils");
     
 api.get('/', async (req, res) => {
     const conversations = getConversations().map(f => f.replace(".json", ""));

@@ -5,16 +5,16 @@ const FormData = require('form-data'),
     path = require('path'),
     moment = require('moment'),
     fs = require('fs'),
-    ElevenLabs = require("elevenlabs-node"),
+    // ElevenLabs = require("elevenlabs-node"),
     TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID,
     TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN,
     DEEPGRAM_API_KEY = process.env.DEEPGRAM_API_KEY,
     twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN),
     OPENAI_API_KEY = process.env.OPENAI_API_KEY,
-    elevenLabs = new ElevenLabs({
-        apiKey:  process.env.ELEVENLABS_API_KEY,
-        voiceId: process.env.ELEVENLABS_VOICE_ID
-    }),
+    // elevenLabs = new ElevenLabs({
+    //     apiKey:  process.env.ELEVENLABS_API_KEY,
+    //     voiceId: process.env.ELEVENLABS_VOICE_ID
+    // }),
     openai = new OpenAI({ apiKey: OPENAI_API_KEY}),
     { createClient, LiveTranscriptionEvents  } = require("@deepgram/sdk"),
     deepgram = createClient(DEEPGRAM_API_KEY);
@@ -82,4 +82,4 @@ const log = (file_name = "logs", text = "", object = "") => {
     return;
 }
 
-module.exports = { twilio, twilioClient, elevenLabs, openai, transcribe, log , deepgram, LiveTranscriptionEvents }
+module.exports = { twilio, twilioClient, openai, transcribe, log , deepgram, LiveTranscriptionEvents }

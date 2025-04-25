@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import { 
   Box, 
   Container, 
@@ -18,14 +17,17 @@ import AddIcon from '@mui/icons-material/Add';
 import PersonIcon from '@mui/icons-material/Person';
 import MenuIcon from '@mui/icons-material/Menu';
 import api from '../services/api';
+import { useAppContext } from '../context/AppContext';
 
 function ChatView() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [conversations, setConversations] = useState([]);
-  const [currentConversationId, setCurrentConversationId] = useState(null);
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const { 
+    currentConversationId, 
+    setCurrentConversationId,
+    setDrawerOpen
+  } = useAppContext();
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -35,15 +37,6 @@ function ChatView() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  const fetchConversations = async () => {
-    try {
-      const response = await api.get('/api/conversations');
-      setConversations(response.data);
-    } catch (error) {
-      console.error('Error fetching conversations:', error);
-    }
-  };
 
   const fetchConversation = async (conversationId) => {
     try {
@@ -57,18 +50,13 @@ function ChatView() {
     }
   };
 
-  const handleNewConversation = () => {
-    const newConversationId = uuidv4();
-    setCurrentConversationId(newConversationId);
-    setMessages([]);
-    setDrawerOpen(false);
-  };
-
-  const handleConversationClick = async (conversationId) => {
-    setCurrentConversationId(conversationId);
-    await fetchConversation(conversationId);
-    setDrawerOpen(false);
-  };
+  useEffect(() => {
+    if (currentConversationId) {
+      fetchConversation(currentConversationId);
+    } else {
+      setMessages([]);
+    }
+  }, [currentConversationId]);
 
   const handleSend = async (label = null) => {
     if (!label && !input.trim()) return;
@@ -91,11 +79,10 @@ function ChatView() {
       // If this was a new conversation, update the current conversation ID
       if (!currentConversationId && response.data.conversationId) {
         setCurrentConversationId(response.data.conversationId);
-        await fetchConversations();
       }
     } catch (error) {
       console.error('Error:', error);
-      const errorMessage = { text: 'Sorry, I encountered an error. Please try again.', sender: 'bot' };
+      const errorMessage = { content: 'Sorry, I encountered an error. Please try again.', sender: 'bot' };
       setMessages(prev => [...prev, errorMessage]);
     }
 
@@ -255,6 +242,9 @@ function ChatView() {
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
             disabled={loading}
             sx={{
+              '&.Mui-disabled': {
+                color: 'rgba(255, 255, 255, 0.5)'
+              },
               '& .MuiOutlinedInput-root': {
                 color: 'white',
                 '& fieldset': {

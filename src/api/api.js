@@ -1,8 +1,7 @@
 const express = require("express"),
     api = express.Router({ mergeParams: true }),
-    conversations = require("./conversations"),
-    calls = require("./calls");
-
+    conversations = require("./controllers/conversations"),
+    calls = require("./controllers/calls");
 
 api.get("/", function(req, res) {
     res.send(`API`);

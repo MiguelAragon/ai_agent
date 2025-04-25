@@ -5,7 +5,7 @@ const WebSocket = require('ws');
 const { createClient, AgentEvents } = require('@deepgram/sdk');
 
 // Replace with your Deepgram API key
-const DEEPGRAM_API_KEY = "543789dd196d500db656fb4fc556a808b6433721";
+const DEEPGRAM_API_KEY = process.env.DEEPGRAM_API_KEY;
 
 async function twilioHandler(twilioWs, req) {
   // Create buffer for audio data

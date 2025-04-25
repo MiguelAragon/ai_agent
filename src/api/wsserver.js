@@ -1,6 +1,5 @@
 const ws = require('ws');
-const { deepgram, LiveTranscriptionEvents  } = require("./utils");
-const { saveCall } = require("./calls");
+const { saveCall } = require("./data/orders");
 
 class Socket {
   	constructor() {
@@ -24,80 +23,31 @@ class Socket {
 
       	// Handle WebSocket connections
       	this.wss.on('connection', (socket, req) => {
-			const urlParts = req.url.split('/'),
-				type = urlParts[1], // 'call' or 'client'
-				connectionId = urlParts[2]; // callSid or clientId
+			// const urlParts = req.url.split('/'),
+			// 	type = urlParts[1], // 'call' or 'client'
+			// 	connectionId = urlParts[2]; // callSid or clientId
 
-
-			const dg = deepgram.listen.live({
-				language: "en",
-				// interim_results: false,
-				punctuate: true,
-				smart_format: true,
-				model: "nova",
-				encoding: "mulaw",  // Specify the audio format
-				sample_rate: 8000   // Twilio's standard sample rate
-			});
-			
-			// Optional: Set up a keepalive interval to maintain the connection
-			let keepAlive = setInterval(() => { 
-				console.log("deepgram: keepalive"); 
-				dg.keepAlive(); 
-			}, 10 * 1000);
-		
-			
-			dg.addListener("open", async () => {
-				console.log("deepgram: connected");
-
-				dg.addListener("transcriptReceived", (transcription) => { 
-					console.log("deepgram: packet received"); 
-					console.log("deepgram: transcript received");
-					
-					console.log('Transcription:', transcription.channel.alternatives[0].transcript);
-					// // Make sure we have results to work with
-					// if (transcription && 
-					// 	transcription.channel && 
-					// 	transcription.channel.alternatives && 
-					// 	transcription.channel.alternatives.length > 0) {
-					  
-					// 	const transcript = transcription.channel.alternatives[0].transcript;
-						
-					// 	if (transcript && transcript.trim() !== '') {
-					// 		console.log("socket: transcript sent to client");
-						
-					// 		// Send transcript to the client
-					// 		// this.sendMessageToClient(connectionId, {
-					// 		// 	event: "transcription",
-					// 		// 	transcript: transcript
-					// 		// });
-					// 	}
-					// }
-				});
-		
-				// Listen for error events
-				dg.addListener("error", (error) => {
-					console.error("deepgram error:", error);
-				});
-				
-				// Listen for close events
-				dg.addListener("close", () => {
-					console.log("deepgram: connection closed");
-					clearInterval(keepAlive);
-				});
-			});
-
-
-			if(type == "client"){
-				this.clients.set(connectionId, socket);
-				this.log("connection", `New connection established for type: ${type}, connectionId: ${connectionId}`);
-			}else if(type == "call"){
-				this.calls.set(connectionId, {socket});
-				this.log("connection", `New connection established for type: ${type}, connectionId: ${connectionId}`);
-			}else{
-				this.log("connection", `Invalid WebSocket connection URL format ${req.url}`);
+			if (req.url === '/call') {
+				twilioHandler(socket);
+			} else if (req.url === "/chat") {
+				chatHandler(socket);
+			} else {
+				console.log(`Unknown path: ${req.url}`);
 				socket.close();
-				return;
 			}
+		
+
+			// if(type == "client"){
+			// 	this.clients.set(connectionId, socket);
+			// 	this.log("connection", `New connection established for type: ${type}, connectionId: ${connectionId}`);
+			// }else if(type == "call"){
+			// 	this.calls.set(connectionId, {socket});
+			// 	this.log("connection", `New connection established for type: ${type}, connectionId: ${connectionId}`);
+			// }else{
+			// 	this.log("connection", `Invalid WebSocket connection URL format ${req.url}`);
+			// 	socket.close();
+			// 	return;
+			// }
 
 			// Handle incoming messages
 			socket.on('message', (message) => {
@@ -147,7 +97,6 @@ class Socket {
 			socket.on('close', () => {
 				if (type === 'call') {
 					this.log("close", `Call ${connectionId} disconnected`);
-					dg?.close();
 					this.calls.delete(connectionId);
 				} else {
 					this.log("close", `Client ${connectionId} disconnected`);

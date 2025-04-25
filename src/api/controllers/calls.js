@@ -1,8 +1,8 @@
 const express = require("express"),
     moment = require("moment"),
   	api = express.Router({ mergeParams: true }),
-  	{ getCall, getCalls, saveCall } = require('./utils/calls'),
-	{ log } = require('./utils/utils');
+  	{ getCall, getCalls, saveCall } = require('../utils/calls'),
+	{ log } = require('../utils/utils');
 
 api.get('/calls', async (req, res) => {
     const calls = getCalls().map(f => f.replace(".json", ""));
